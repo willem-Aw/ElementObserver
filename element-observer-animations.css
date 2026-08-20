@@ -1,0 +1,181 @@
+/**
+ * Animations pour ElementObserver
+ * --------------------------------
+ * Cible les attributs posés par la classe JS :
+ *   data-anim-direction="up|down|left|right|zoomin|zoominout|zoomout"
+ *   data-anim-visible="true"  (ajouté à l'entrée dans le viewport)
+ *
+ * Personnalisation via custom properties (à surcharger par élément
+ * ou par contexte si besoin) :
+ *   --anim-duration : durée de l'animation (défaut 0.8s)
+ *   --anim-delay    : délai avant démarrage   (défaut 0s)
+ *   --anim-distance : distance de translation (défaut clamp fluide)
+ *   --anim-ease     : timing-function          (défaut easeOutExpo-like)
+ */
+
+:root {
+	--anim-duration: 0.8s;
+	--anim-delay: 0s;
+	--anim-distance: clamp(24px, 4vw, 64px);
+	--anim-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/*
+* État initial commun : invisible tant que non révélé 
+*/
+
+[data-anim-direction] {
+	opacity: 0;
+	will-change: opacity, transform;
+	animation-duration: var(--anim-duration);
+	animation-delay: var(--anim-delay);
+	animation-timing-function: var(--anim-ease);
+	animation-fill-mode: both;
+	animation-play-state: paused;
+}
+
+[data-anim-direction][data-anim-visible='true'] {
+	animation-play-state: running;
+}
+
+/* 
+* Translation : up / down / left / right
+*/
+
+@keyframes anim-up {
+	from {
+		opacity: 0;
+		transform: translate3d(0, var(--anim-distance), 0);
+	}
+
+	to {
+		opacity: 1;
+		transform: translate3d(0, 0, 0);
+	}
+}
+
+@keyframes anim-down {
+	from {
+		opacity: 0;
+		transform: translate3d(0, calc(var(--anim-distance) * -1), 0);
+	}
+
+	to {
+		opacity: 1;
+		transform: translate3d(0, 0, 0);
+	}
+}
+
+@keyframes anim-left {
+	from {
+		opacity: 0;
+		transform: translate3d(var(--anim-distance), 0, 0);
+	}
+
+	to {
+		opacity: 1;
+		transform: translate3d(0, 0, 0);
+	}
+}
+
+@keyframes anim-right {
+	from {
+		opacity: 0;
+		transform: translate3d(calc(var(--anim-distance) * -1), 0, 0);
+	}
+
+	to {
+		opacity: 1;
+		transform: translate3d(0, 0, 0);
+	}
+}
+
+[data-anim-direction='up'][data-anim-visible='true'] {
+	animation-name: anim-up;
+}
+
+[data-anim-direction='down'][data-anim-visible='true'] {
+	animation-name: anim-down;
+}
+
+[data-anim-direction='left'][data-anim-visible='true'] {
+	animation-name: anim-left;
+}
+
+[data-anim-direction='right'][data-anim-visible='true'] {
+	animation-name: anim-right;
+}
+
+/* 
+* Zoom : zoomin / zoomout / zoominout
+*/
+
+/* Apparition en grossissant depuis un état légèrement réduit. */
+@keyframes anim-zoomin {
+	from {
+		opacity: 0;
+		transform: scale3d(0.85, 0.85, 1);
+	}
+
+	to {
+		opacity: 1;
+		transform: scale3d(1, 1, 1);
+	}
+}
+
+/* Apparition en rétrécissant depuis un état légèrement agrandi. */
+@keyframes anim-zoomout {
+	from {
+		opacity: 0;
+		transform: scale3d(1.15, 1.15, 1);
+	}
+
+	to {
+		opacity: 1;
+		transform: scale3d(1, 1, 1);
+	}
+}
+
+/* Effet "rebond" : dézoome puis rezoome légèrement avant de se stabiliser. */
+@keyframes anim-zoominout {
+	0% {
+		opacity: 0;
+		transform: scale3d(0.8, 0.8, 1);
+	}
+
+	60% {
+		opacity: 1;
+		transform: scale3d(1.05, 1.05, 1);
+	}
+
+	100% {
+		opacity: 1;
+		transform: scale3d(1, 1, 1);
+	}
+}
+
+[data-anim-direction='zoomin'][data-anim-visible='true'] {
+	animation-name: anim-zoomin;
+}
+
+[data-anim-direction='zoomout'][data-anim-visible='true'] {
+	animation-name: anim-zoomout;
+}
+
+[data-anim-direction='zoominout'][data-anim-visible='true'] {
+	/* Léger rebond : easing dédié pour un effet plus naturel que l'ease global. */
+	animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+	animation-name: anim-zoominout;
+}
+
+/*
+* Accessibilité : respecte la préférence "réduire les animations"
+*/
+
+@media (prefers-reduced-motion: reduce) {
+	[data-anim-direction] {
+		animation: none !important;
+		opacity: 1;
+		transform: none !important;
+	}
+}

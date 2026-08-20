@@ -125,8 +125,3 @@ révélés immédiatement.
 
 Le projet ne contient ni dépendance ni script de compilation. Ouvrez les
 fichiers dans votre éditeur et intégrez-les directement dans votre projet.
-
-## Licence
-
-Aucun fichier de licence n'est fourni dans ce dépôt. Ajoutez une licence
-adaptée à votre projet si nécessaire.
